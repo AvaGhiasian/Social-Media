@@ -1,0 +1,48 @@
+<style>
+    .messages .success {
+        color: #000000;
+        background-color: #16A085;
+    }
+    .messages .error {
+        color: #000000;
+        background-color: #b91010;
+    }
+    .messages .info {
+        color: #000000;
+        background-color: #115c83;
+    }
+    .messages .warning {
+        color: #000000;
+        background-color: #bd7913;
+    }
+</style>
+{% extends 'parent/base.html' %}
+{% block title %} register {% endblock %}
+{% load static %}
+{% block content %}
+	{% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif  %}
+ <section class="login">
+  <div class="container">
+   <div class="banner-content">
+      <form method="post" class="form-signin">
+           <div class="form-group">
+            {% csrf_token %}
+            {{ form.as_p }}
+           </div>
+           <button class="kafe-btn kafe-btn-mint btn-block" type="submit">ارسال پیام به پشتیبانی</button>
+           <br/>
+      </form>
+
+   </div><!--/. banner-content -->
+  </div><!-- /.container -->
+
+ </section>
+{% endblock %}

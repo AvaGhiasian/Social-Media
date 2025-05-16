@@ -1,0 +1,4 @@
+{% for post in posts %}
+    {{ posts.description | truncatewords:10 | linebreaks }}
+    Published at {{ post.created }} by {{ post.author }}
+{% endfor %}
