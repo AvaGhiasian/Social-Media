@@ -5,9 +5,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail, BadHeaderError
+from taggit.models import Tag
+from django.db.models import Count
 
-from .forms import TicketForm, UserEditForm, UserRegisterForm
-from .models import Post
+from .forms import *
+from .models import *
 
 
 # Create your views here.
@@ -62,10 +64,40 @@ def ticket(request):
     return render(request, "forms/ticket.html", {'form': form})
 
 
-
-def post_list(request):
+def post_list(request, tag_slug=None):
     posts = Post.objects.all()
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        posts = Post.objects.filter(tags__in=[tag])
     context = {
         'posts': posts,
+        'tag': tag,
     }
     return render(request, "social/list.html", context)
+
+
+def create_post(request):
+    if request.method == 'POST':
+        form = CreatePostForm(data=request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            form.save_m2m()
+            return redirect('social:posts')
+    else:
+        form = CreatePostForm()
+    return render(request, 'forms/create-post.html', {'form': form})
+
+
+def post_detail(request, pk):
+    post = get_object_or_404(Post, id=pk)
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.objects.filter(tags__in=post_tags_ids).exclude(id=pk)
+    similar_posts= similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-created')[:5]
+    context = {
+        'post': post,
+        'similar_posts': similar_posts,
+    }
+    return render(request, "social/detail.html", context)

@@ -1,0 +1,32 @@
+{% extends 'parent/base.html' %}
+{#{% load thumbnail %}#}
+{% load static %}
+{% block title %} profile {% endblock %}
+
+{% block content %}
+
+
+    <section class="upload text-right">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="box ">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <div class="box-footer clearfix">
+                                <button class="kafe-btn kafe-btn-mint-small"><i class="fa fa-camera"></i> بارگذاری
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <!--/ container -->
+    </section>
+{% endblock %}
+

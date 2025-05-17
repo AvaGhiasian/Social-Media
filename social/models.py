@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, User
+from taggit.managers import TaggableManager
+from django.urls import reverse
 
 
 # Create your models here.
@@ -17,6 +19,8 @@ class Post(models.Model):
     description = models.TextField(verbose_name="توضیحات")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True, verbose_name="لایک ها")
+    tags = TaggableManager()
 
     class Meta:
         ordering = ['-created']  # when getting all objects from DB it orders this way
@@ -28,3 +32,6 @@ class Post(models.Model):
 
     def __str__(self):
         return self.author.first_name
+
+    def get_absolute_url(self):
+        return reverse('social:post_detail', args=[self.id])

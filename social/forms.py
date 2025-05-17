@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
-from social.models import User
+from social.models import Post, User
 
 
 class LoginForm(AuthenticationForm):  # AuthenticationForm automatically authenticates password, email ,etc
@@ -74,3 +74,9 @@ class TicketForm(forms.Form):
                 raise forms.ValidationError("شماره تلفن صحیح وارد نشده است.")
             else:
                 return self.cleaned_data['phone']
+
+
+class CreatePostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['description', 'tags']
