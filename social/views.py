@@ -1,10 +1,11 @@
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail, BadHeaderError
+from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
 
@@ -95,9 +96,37 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, id=pk)
     post_tags_ids = post.tags.values_list('id', flat=True)
     similar_posts = Post.objects.filter(tags__in=post_tags_ids).exclude(id=pk)
-    similar_posts= similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-created')[:5]
+    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags', '-created')[:5]
     context = {
         'post': post,
         'similar_posts': similar_posts,
     }
     return render(request, "social/detail.html", context)
+
+
+@login_required
+@require_POST
+def like_post(request):
+    post_id = request.POST.get('post_id')  # this post_id comes from template
+    if post_id is not None:
+        post = get_object_or_404(Post, id=post_id)
+        user = request.user
+
+        if user in post.likes.all():
+            post.likes.remove(user)
+            liked = False
+        else:
+            post.likes.add(user)
+            liked = True
+
+        like_count = post.likes.count()
+        response_data = {
+            'liked': liked,
+            'like_count': like_count,
+        }
+    else:
+        response_data = {
+            'error': 'invalid post_id'
+        }
+
+    return JsonResponse(response_data)
