@@ -8,6 +8,7 @@ from django.core.mail import send_mail, BadHeaderError
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .forms import *
 from .models import *
@@ -21,7 +22,9 @@ def log_out(request):
 
 
 def profile(request):
-    return HttpResponse("You're at the profile page.")
+    user = request.user
+    saved_posts = user.saved_posts.all()
+    return render(request, 'social/profile.html', {'saved_posts': saved_posts})
 
 
 def register(request):
@@ -71,6 +74,18 @@ def post_list(request, tag_slug=None):
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
         posts = Post.objects.filter(tags__in=[tag])
+        page = request.GET.get('page')
+        paginator = Paginator(posts, 5)
+        try:
+            posts = paginator.page(page)
+        except PageNotAnInteger:
+            post = paginator.page(1)
+        except EmptyPage:
+            posts = []
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, "social/list_ajax.html", {'posts': posts})
+
     context = {
         'posts': posts,
         'tag': tag,
@@ -130,3 +145,22 @@ def like_post(request):
         }
 
     return JsonResponse(response_data)
+
+
+@login_required
+@require_POST
+def save_post(request):
+    post_id = request.POST.get('post_id')
+    if post_id is not None:
+        post = get_object_or_404(Post, id=post_id)
+        user = request.user
+
+        if user in post.saved_by.all():
+            post.saved_by.remove(user)
+            saved = False
+        else:
+            post.saved_by.add(user)
+            saved = True
+
+        return JsonResponse({'saved': saved})
+    return  JsonResponse({'error': 'invalid request'})

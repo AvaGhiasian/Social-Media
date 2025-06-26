@@ -8,7 +8,7 @@
 
     {% for post in posts %}
         <a href="{{ post.get_absolute_url }}">
-        {{ post.description|truncatewords:20|linebreaks }}
+            {{ post.description|truncatewords:20|linebreaks }}
         </a>
         Published at {{ post.created }} by {{ post.author }}
 
@@ -18,4 +18,27 @@
             {% if not forloop.last %}, {% endif %}
         {% endfor %}
     {% endfor %}
+
+    <br>
+    <button id="load-more" class="center-block text-info">بار‌گذاری بیشتر</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        $(document).ready(function () {
+            var page = 2;
+            $('#load-more').click(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% if tag %}{% url 'social:post_by_tag' tag.slug %}{% else %}{% url 'social:posts' %}{% endif %}" + "?page=" + page,
+                    dataType: 'html',
+                    success: function (data) {
+                        $('#post-list').append(data);
+                        page += 1;
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

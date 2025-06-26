@@ -31,5 +31,6 @@ urlpatterns = [
     path('create-post/', views.create_post, name="create_post"),
     path('posts/detail/<pk>', views.post_detail, name="post_detail"),
     path('like-post/', views.like_post, name="like_post"),
+    path('like-post/', views.save_post, name="save_post"),
 
 ]
