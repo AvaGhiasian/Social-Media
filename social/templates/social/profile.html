@@ -2,7 +2,7 @@
 {% load static %}
 
 {% with user=request.user %}
-    <p>{{ request.user.get_fullname }}</p>
+    <p>{{ request.user.get_full_name }}</p>
 
     {% if request.user.photo %}
         <a href="{{ user.photo.url }}">
@@ -25,3 +25,4 @@
         <br><br><br>
     {% endfor %}
 </ul>
+

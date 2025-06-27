@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, Post
+from .models import User, Post, Contact
 
 admin.sites.AdminSite.site_header = "پنل مدیریت جنگو"
 admin.sites.AdminSite.site_title = "پنل"
@@ -23,3 +23,6 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ['author', 'created']
     ordering = ['created']
     search_fields = ['description']
+
+
+admin.site.register(Contact)
