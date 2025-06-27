@@ -22,9 +22,10 @@ def log_out(request):
 
 
 def profile(request):
-    user = request.user
+    user = User.objects.prefetch_related('followers').get(id=request.user.id)
     saved_posts = user.saved_posts.all()
-    return render(request, 'social/profile.html', {'saved_posts': saved_posts})
+    my_posts = user.user_posts.all()[:8]
+    return render(request, 'social/profile.html', {'saved_posts': saved_posts, 'my_posts': my_posts})
 
 
 def register(request):
@@ -70,7 +71,7 @@ def ticket(request):
 
 
 def post_list(request, tag_slug=None):
-    posts = Post.objects.all()
+    posts = Post.objects.select_related('author').all()
     tag = None
     if tag_slug:
         tag = get_object_or_404(Tag, slug=tag_slug)
