@@ -28,6 +28,7 @@ class Post(models.Model):
     saved_by = models.ManyToManyField(User, related_name='saved_posts', blank=True)
     tags = TaggableManager()
     total_likes = models.IntegerField(default=0)
+    active = models.BooleanField(default=True, verbose_name="فعال")
 
     class Meta:
         ordering = ['-created']  # when getting all objects from DB it orders this way
