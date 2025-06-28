@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.db.models.expressions import result
 
-from .models import User, Post, Contact, Image
+from .models import User, Post, Contact, Image, Comment
 
 admin.sites.AdminSite.site_header = "پنل مدیریت جنگو"
 admin.sites.AdminSite.site_title = "پنل"
@@ -28,6 +28,11 @@ make_activation.short_description = "تایید پست"
 
 # Register your models here.
 
+class ImageInline(admin.TabularInline):
+    model = Image
+    extra = 0
+
+
 @admin.register(User)
 class UserAdmin(UserAdmin):
     list_display = ['username', 'first_name', 'last_name', 'email', 'phone']
@@ -41,8 +46,19 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ['author', 'created', 'description']
     ordering = ['created']
     search_fields = ['description']
+    inlines = [ImageInline]
     actions = [make_deactivation, make_activation]
 
 
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['post', 'name', 'created', 'active']
+    list_filter = ['active', 'created', 'updated', ]
+    search_fields = ['name', 'body']
+    list_editable = ['active']
+    # autocomplete_fields = ['post']
+
+
 admin.site.register(Contact)
+
 admin.site.register(Image)

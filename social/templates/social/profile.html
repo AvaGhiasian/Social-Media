@@ -47,9 +47,9 @@
 							<li>
 								<small class="text-muted"><a href="photo_profile_two.html">{{ user.user_posts.count }} پست<em
 											class="fa fa-angle-left pull-left"></em></a> </small><br />
-								<small class="text-muted"><a href="#">{{ user.followers.count }} دنبال کننده<em
+								<small class="text-muted"><a href="{% url 'social:user_contact' user.username 'followers' %}">{{ user.followers.count }} دنبال کننده<em
 											class="fa fa-angle-left pull-left"></em></a> </small><br />
-								<small class="text-muted"><a href="#">{{ user.following.count }} نفر را دنبال می کند <em
+								<small class="text-muted"><a href="{% url 'social:user_contact' user.username 'following' %}">{{ user.following.count }} نفر را دنبال می کند <em
 											class="fa fa-angle-left pull-left"></em></a> </small>
 								<hr>
 								<small class="text-muted">درباره: </small>

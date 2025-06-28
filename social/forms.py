@@ -1,59 +1,117 @@
 from django import forms
+from .models import User, Post, Comment
 from django.contrib.auth.forms import AuthenticationForm
 
-from social.models import Post, User
 
-
-class LoginForm(AuthenticationForm):  # AuthenticationForm automatically authenticates password, email ,etc
-    username = forms.CharField(max_length=250, required=True, widget=forms.TextInput(),
-                               label='نام کاربری، ایمیل یا شماره تماس')
-    password = forms.CharField(max_length=250, required=True,
-                               widget=forms.PasswordInput(), label='رمز عبور')
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(max_length=250, required=True, label="نام کاربری یا تلفن",
+                               widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(max_length=250, required=True, label="رمز عبور",
+                               widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
 
 class UserRegisterForm(forms.ModelForm):
-    password = forms.CharField(max_length=20, widget=forms.PasswordInput, label='رمز عبور')
-    password_2 = forms.CharField(max_length=20, widget=forms.PasswordInput, label='تکرار رمز عبور')
+    password = forms.CharField(max_length=20, widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+                               label='پسورد')
+    password2 = forms.CharField(max_length=20, widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+                                label='تکرار پسورد')
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'phone', 'password']
+        fields = ['username', 'first_name', 'last_name', 'phone']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+                'phone': forms.TextInput(attrs={
+                    'class': 'form-control',
+            }),
+        }
+        labels = {
+            'username': 'نام کاربری',
+            'first_name': 'نام',
+            'last_name': 'نام خانوادگی',
+            'phone': 'شماره تماس',
 
-    def clean_password_2(self):
-        if self.cleaned_data['password'] != self.cleaned_data['password_2']:
-            raise forms.ValidationError('پسوردها مطابقت ندارند!')
-        return self.cleaned_data['password_2']
+        }
+
+
+    def clean_password2(self):
+        cd = self.cleaned_data
+        if cd['password'] != cd['password2']:
+            raise forms.ValidationError('پسورد ها مطابقت ندارند!')
+        return cd['password2']
 
     def clean_phone(self):
-        if User.objects.filter(phone=self.cleaned_data['phone']).exists():
-            raise forms.ValidationError('کاربر با این شماره تماس قبلا ثبت نام کرده است.')
-        return self.cleaned_data['phone']
-
-    def clean_email(self):
-        if User.objects.filter(email=self.cleaned_data['email']).exists():
-            raise forms.ValidationError('کاربر با این ایمیل قبلا ثبت نام کرده است')
-        return self.cleaned_data['email']
+        phone = self.cleaned_data['phone']
+        if User.objects.filter(phone=phone).exists():
+            raise forms.ValidationError("phone already exists!")
+        return phone
 
 
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'phone', 'email', 'bio', 'date_of_birth', 'photo', 'job']
+        fields = ['username', 'first_name', 'last_name', 'email',
+                  'phone', 'date_of_birth', 'bio', 'photo', 'job']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-control',
+            }),
+            'bio': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+            'photo': forms.FileInput(attrs={
+                'class': 'form-control',
+            }),
+            'job': forms.TextInput(attrs={
+                'class': 'form-control',
+            }),
+        }
+        labels = {
+            'username': 'نام کاربری',
+            'first_name': 'نام',
+            'last_name': 'نام خانوادگی',
+            'email': 'ایمیل',
+            'date_of_birth': 'تاریخ تولد',
+            'phone': 'شماره تماس',
+            'bio': 'بایو',
+            'job': 'شغل',
+
+        }
 
     def clean_phone(self):
-        if User.objects.exclude(id=self.instance.id).filter(phone=self.cleaned_data['phone']).exists():
-            raise forms.ValidationError('شماره تماس قبلا ثبت شده است.')
-        return self.cleaned_data['phone']
-
-    def clean_email(self):
-        if User.objects.exclude(id=self.instance.id).filter(email=self.cleaned_data['email']).exists():
-            raise forms.ValidationError('ایمیل قبلا ثبت شده است.')
-        return self.cleaned_data['email']
+        phone = self.cleaned_data['phone']
+        if User.objects.exclude(id=self.instance.id).filter(phone=phone).exists():
+            raise forms.ValidationError("phone already exists!")
+        return phone
 
     def clean_username(self):
-        if User.objects.exclude(id=self.instance.id).filter(username=self.cleaned_data['username']).exists():
-            raise forms.ValidationError('نام کاربری قبلا ثبت شده است.')
-        return self.cleaned_data['username']
+        username = self.cleaned_data['username']
+        if User.objects.exclude(id=self.instance.id).filter(username=username).exists():
+            raise forms.ValidationError("username already exists!")
+        return username
 
 
 class TicketForm(forms.Form):
@@ -62,21 +120,43 @@ class TicketForm(forms.Form):
         ('انتقاد', 'انتقاد'),
         ('گزارش', 'گزارش'),
     )
-    message = forms.CharField(widget=forms.Textarea(), required=True, label='پیام')
-    name = forms.CharField(max_length=250, widget=forms.TextInput(), required=True, label='نام')
-    email = forms.EmailField(widget=forms.TextInput(), label='ایمیل')
-    phone = forms.CharField(max_length=11, widget=forms.TextInput(), required=True, label='شماره تماس')
+    message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': "3"}), required=True, label='پیام')
+    name = forms.CharField(max_length=250,widget=forms.TextInput(attrs={'class': 'form-control'}), required=True, label='نام')
+    email = forms.EmailField(widget=forms.TextInput(attrs={'class': 'form-control'}),label='ایمیل')
+    phone = forms.CharField(max_length=11,widget=forms.TextInput(attrs={'class': 'form-control'}), required=True, label='شماره تماس')
     subject = forms.ChoiceField(choices=SUBJECT_CHOICES, label='موضوع')
 
     def clean_phone(self):
-        if self.cleaned_data['phone']:
-            if not self.cleaned_data['phone'].isnumeric():
-                raise forms.ValidationError("شماره تلفن صحیح وارد نشده است.")
+        phone = self.cleaned_data['phone']
+        if phone:
+            if not phone.isnumeric():
+                raise forms.ValidationError("شماره تلفن عددی نیست!")
             else:
-                return self.cleaned_data['phone']
-
+                return phone
 
 class CreatePostForm(forms.ModelForm):
+    image1 = forms.ImageField(label="تصویر اول", widget=forms.FileInput(attrs={'class': 'form-control'}))
+    image2 = forms.ImageField(label="تصویر دوم", widget=forms.FileInput(attrs={'class': 'form-control'}))
     class Meta:
         model = Post
         fields = ['description', 'tags']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': "3"
+            }),
+        }
+        labels = {
+            'tags': 'تگ ها',
+        }
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['body']
+        widgets={
+            'body': forms.TextInput(attrs={
+                'placeholder': 'کامنت بزارید...',
+                'class':'form-control input-sm'
+            }),
+        }

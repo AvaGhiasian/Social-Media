@@ -1,4 +1,5 @@
 {% extends 'parent/base.html' %}
+{% load thumbnail %}
 {% load static %}
 {% block title %} post detail {% endblock %}
 
@@ -24,7 +25,7 @@
                                 <br>
                                     <div class="text-center">
                                         {% for tag in post.tags.all %}
-                                           <a class="text-dark" href="{% url 'social:posts_by_tag' tag.slug %}">
+                                           <a class="text-dark" href="{% url 'social:post_list_by_tag' tag.slug %}">
                                                <button> {{ tag.name }}</button>
                                            </a>
                                             {% if not forloop.last %}, {% endif %}
@@ -42,7 +43,7 @@
 										<!--/ button -->
 										<div class="img-poster clearfix">
 											<a href="#"><img class="img-responsive img-circle"
-													src="#" alt="Image" /></a>
+													src="{{ post.author.photo.url}}" alt="Image" /></a>
                                             <span>{{ post.created|date:"Y/m/d-H:i"}}</span><br />
 											<strong><a href="#">{{ post.author.get_full_name }}</a></strong>
 											<button id="save-post" class="kafe-btn kafe-btn-danger-small">
@@ -94,7 +95,7 @@
 													alt="Image">
 											</span>
 											<div class="comment-body">
-                                                <form method="post" action="#" >
+                                                <form method="post" action="{% url 'social:post_comment' post.id %}" >
                                                     {% csrf_token %}
                                                     {{ form.as_div }}
                                                   <div class="col-12">

@@ -9,7 +9,7 @@
       <form method="post" class="form-signin" enctype="multipart/form-data">
            <div class="form-group">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ user_form.as_p }}
            </div>
            <button class="kafe-btn kafe-btn-mint btn-block" type="submit">ذخیره تغییرات</button>
            <br/>
