@@ -37,4 +37,5 @@ urlpatterns = [
     path('users/<username>/', views.user_detail, name='user_detail'),
     path('follow/', views.user_follow, name='user_follow'),
 
+
 ]
